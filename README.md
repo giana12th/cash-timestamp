@@ -1,71 +1,40 @@
-# cash-timestamp README
+# cash-timestamp
 
-This is the README for your extension "cash-timestamp". After writing up a brief description, we recommend including the following sections.
+外部アプリが書き込むタイムスタンプファイルを監視し、経過時間を VSCode ステータスバーに常時表示する拡張機能。
 
-## Features
+## 表示例
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+| 状態 | 表示 |
+|---|---|
+| 正常（経過時間表示中） | `⏱ 02:30:15` |
+| ファイルなし／読み取りエラー | `⏱ --:--:--` |
 
-For example if there is an image subfolder under your extension project workspace:
+## セットアップ
 
-\!\[feature X\]\(images/feature-x.png\)
+1. `settings.json` にタイムスタンプファイルのパスを設定する
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+```json
+{
+  "timestampViewer.filePath": "C:\\Users\\user\\timestamp.txt"
+}
+```
 
-## Requirements
+ワークスペースごとに別ファイルを参照したい場合は `.vscode/settings.json` に記述する。
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## タイムスタンプファイルの仕様
 
-## Extension Settings
+- UTF-8 テキストファイル（`.txt`）
+- ISO 8601 ローカル時刻を1行だけ記述
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+```
+2026-05-20T15:30:00
+```
 
-For example:
+外部アプリがこのファイルを書き換えると、表示が自動でリセットされる。
 
-This extension contributes the following settings:
+## 動作仕様
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+- 1秒ごとに経過時間を更新
+- ファイル更新を `fs.watch` で自動検知（デバウンス 200ms）
+- ファイルが存在しない／読み取りエラー時は `⏱ --:--:--` を表示
+- ファイルが復旧した際は自動で正常表示に戻る
