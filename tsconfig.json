@@ -7,6 +7,8 @@
 		],
 		"types": [
 			"node",
+			"jest",
+			"mocha"
 		],
 		"sourceMap": true,
 		"rootDir": "src",
