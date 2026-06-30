@@ -11,15 +11,17 @@
 
 ## セットアップ
 
-1. `settings.json` にタイムスタンプファイルのパスを設定する
+1. `.vscode/settings.local.json` を作成し、タイムスタンプファイルのパスを設定する
 
 ```json
 {
-  "timestampViewer.filePath": "C:\\Users\\user\\timestamp.txt"
+  "timestampViewer.filePath": "C:/Users/user/timestamp.txt"
 }
 ```
 
-ワークスペースごとに別ファイルを参照したい場合は `.vscode/settings.json` に記述する。
+`.vscode/settings.local.json` は git 管理対象外（`.gitignore` 済み）のため、フルパスを含む設定をリポジトリに混入させずに管理できる。
+
+`.vscode/settings.json` やユーザー設定への記述も引き続き有効。`settings.local.json` が存在する場合はそちらが優先される。
 
 ## タイムスタンプファイルの仕様
 

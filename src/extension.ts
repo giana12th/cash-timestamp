@@ -119,7 +119,30 @@ class TimestampWatcher {
 
 let watcher: TimestampWatcher | undefined;
 
+/**
+ * ワークスペースルートの settings.local.json のパスを返す。
+ * ワークスペースが開かれていない場合は undefined を返す。
+ */
+function getLocalSettingsPath(): string | undefined {
+    const folders = vscode.workspace.workspaceFolders;
+    if (!folders || folders.length === 0) { return undefined; }
+    return path.join(folders[0].uri.fsPath, '.vscode', 'settings.local.json');
+}
+
+/**
+ * 設定ファイルパスを取得する。
+ * settings.local.json が存在する場合はそちらを優先し、なければ VS Code 設定にフォールバックする。
+ */
 function getConfiguredFilePath(): string {
+    const localPath = getLocalSettingsPath();
+    if (localPath) {
+        try {
+            const raw = fs.readFileSync(localPath, 'utf-8');
+            const json = JSON.parse(raw) as Record<string, unknown>;
+            const val = json[`${CONFIG_SECTION}.${CONFIG_KEY_FILE_PATH}`];
+            if (typeof val === 'string' && val) { return val; }
+        } catch { /* fall through */ }
+    }
     return vscode.workspace.getConfiguration(CONFIG_SECTION).get<string>(CONFIG_KEY_FILE_PATH, '');
 }
 
@@ -133,6 +156,22 @@ export function activate(context: vscode.ExtensionContext): void {
             watcher?.updateFilePath(getConfiguredFilePath());
         }
     });
+
+    // settings.local.json の変更を監視する
+    const localSettingsPath = getLocalSettingsPath();
+    if (localSettingsPath) {
+        const dir = path.dirname(localSettingsPath);
+        const fileName = path.basename(localSettingsPath);
+        try {
+            const localSettingsWatcher = fs.watch(dir, (_event, filename) => {
+                if (filename === fileName) {
+                    watcher?.updateFilePath(getConfiguredFilePath());
+                }
+            });
+            context.subscriptions.push({ dispose: () => localSettingsWatcher.close() });
+        } catch { /* ワークスペースルートにアクセスできない場合は無視 */ }
+    }
+
     context.subscriptions.push(configListener, { dispose: () => watcher?.dispose() });
 }
 

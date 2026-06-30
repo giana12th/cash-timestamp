@@ -37,15 +37,26 @@
 
 ## 設定
 
-`settings.json` で以下を設定できる。ユーザー設定・ワークスペース設定の両方に対応しており、ワークスペースごとに異なるタイムスタンプファイルを指定可能。
+以下の設定ファイルを参照する（上から順に優先）。
+
+| 優先度 | ファイル | git 管理 | 用途 |
+|---|---|---|---|
+| 高 | `.vscode/settings.local.json` | 対象外（.gitignore） | ローカル専用設定（フルパス等） |
+| 低 | `.vscode/settings.json` / ユーザー設定 | コミット可能 | チーム共有設定 |
+
+設定キー：
 
 | 設定キー | 型 | 説明 | 例 |
 |---|---|---|---|
-| `timestampViewer.filePath` | string | タイムスタンプファイルの絶対パス | `"C:\\Users\\user\\timestamp.txt"` |
+| `timestampViewer.filePath` | string | タイムスタンプファイルの絶対パス | `"C:/Users/user/timestamp.txt"` |
+
+### ローカル設定（settings.local.json）
+
+`.vscode/settings.local.json` を作成することで、フルパスなどローカル固有の値を git 管理外に置ける。`.vscode/settings.local.json` は `.gitignore` に追加済みのため git にコミットされない。ファイルの変更はファイル監視により自動で反映される。
 
 ### ワークスペースごとの使い分け
 
-`.vscode/settings.json` に `timestampViewer.filePath` を記述することで、プロジェクトごとに別のタイムスタンプファイルを参照できる。VSCodeのワークスペース切り替えに連動して自動的に切り替わる。
+`.vscode/settings.json` に `timestampViewer.filePath` を記述することで、プロジェクトごとに別のタイムスタンプファイルを参照できる。VSCodeのワークスペース切り替えに連動して自動的に切り替わる。`settings.local.json` が存在する場合はそちらが優先される。
 
 ---
 
